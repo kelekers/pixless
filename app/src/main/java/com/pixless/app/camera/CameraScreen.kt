@@ -10,6 +10,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.padding
 
 @OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
@@ -37,8 +38,15 @@ fun CameraScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(padding)
         ) {
-            CameraPreview()
+
+            RequestCameraPermission {
+
+                CameraPreview()
+
+            }
+
         }
     }
 

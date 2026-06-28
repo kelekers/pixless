@@ -21,15 +21,10 @@ fun CameraPreview() {
         contentAlignment = Alignment.Center
 
     ) {
-
-        Text(
-
-            text = "Camera Preview",
-
-            color = Color.White
-
-        )
-
+            Text(
+                text = "Permission Granted\n(CameraX berikutnya)",
+                color = Color.White
+            )
     }
 
 }
