@@ -8,23 +8,70 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import android.annotation.SuppressLint
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
 
+@SuppressLint("UnsafeOptInUsageError")
 @Composable
 fun CameraPreview() {
 
-    Box(
+    val context = LocalContext.current
 
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black),
+    val previewView = remember {
 
-        contentAlignment = Alignment.Center
+        PreviewView(context)
 
-    ) {
-            Text(
-                text = "Permission Granted\n(CameraX berikutnya)",
-                color = Color.White
-            )
     }
+
+    AndroidView(
+
+        factory = {
+
+            previewView
+
+        },
+
+        modifier = Modifier.fillMaxSize(),
+
+        update = {
+
+            val cameraProviderFuture =
+                ProcessCameraProvider.getInstance(context)
+
+            cameraProviderFuture.addListener({
+
+                val cameraProvider =
+                    cameraProviderFuture.get()
+
+                val preview =
+                    Preview.Builder().build()
+
+                preview.surfaceProvider =
+                    previewView.surfaceProvider
+
+                cameraProvider.unbindAll()
+
+                cameraProvider.bindToLifecycle(
+
+                    context as androidx.lifecycle.LifecycleOwner,
+
+                    CameraSelector.DEFAULT_BACK_CAMERA,
+
+                    preview
+
+                )
+
+            }, ContextCompat.getMainExecutor(context))
+
+        }
+
+    )
 
 }
