@@ -3,7 +3,7 @@ package com.pixless.app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import com.pixless.app.ui.screens.HomeScreen
+import com.pixless.app.navigation.AppNavigation
 
 class MainActivity : ComponentActivity() {
 
@@ -14,16 +14,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-
-            HomeScreen(
-
-                onCameraClick = {},
-
-                onGalleryClick = {},
-
-                onSettingsClick = {}
-
-            )
+            AppNavigation()
         }
     }
 }
