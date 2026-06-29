@@ -9,20 +9,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import android.annotation.SuppressLint
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.Preview
-import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
+import androidx.compose.ui.platform.LocalLifecycleOwner
 
 @SuppressLint("UnsafeOptInUsageError")
 @Composable
-fun CameraPreview() {
+fun CameraPreview(
+    controller: CameraController
+) {
 
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     val previewView = remember {
 
@@ -42,33 +42,13 @@ fun CameraPreview() {
 
         update = {
 
-            val cameraProviderFuture =
-                ProcessCameraProvider.getInstance(context)
+            controller.startCamera(
 
-            cameraProviderFuture.addListener({
+                previewView,
 
-                val cameraProvider =
-                    cameraProviderFuture.get()
+                lifecycleOwner
 
-                val preview =
-                    Preview.Builder().build()
-
-                preview.surfaceProvider =
-                    previewView.surfaceProvider
-
-                cameraProvider.unbindAll()
-
-                cameraProvider.bindToLifecycle(
-
-                    context as androidx.lifecycle.LifecycleOwner,
-
-                    CameraSelector.DEFAULT_BACK_CAMERA,
-
-                    preview
-
-                )
-
-            }, ContextCompat.getMainExecutor(context))
+            )
 
         }
 
