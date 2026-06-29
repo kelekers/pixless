@@ -5,46 +5,35 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.pixless.app.camera.CameraScreen
-import com.pixless.app.ui.screens.HomeScreen
+import com.pixless.app.gallery.GalleryScreen
+
+object Routes {
+    const val CAMERA = "camera"
+    const val GALLERY = "gallery"
+}
 
 @Composable
 fun AppNavigation() {
-
     val navController = rememberNavController()
 
     NavHost(
         navController = navController,
-        startDestination = "home"
+        startDestination = Routes.CAMERA
     ) {
 
-        composable("home") {
-
-            HomeScreen(
-
-                onCameraClick = {
-                    navController.navigate("camera")
-                },
-
-                onGalleryClick = {
-                },
-
-                onSettingsClick = {
+        composable(Routes.CAMERA) {
+            CameraScreen(
+                onNavigateToGallery = {
+                    navController.navigate(Routes.GALLERY)
                 }
-
             )
-
         }
 
-        composable("camera") {
-
-            CameraScreen(
-                onBack = {
-                    navController.popBackStack()
-                }
+        composable(Routes.GALLERY) {
+            GalleryScreen(
+                onBack = { navController.popBackStack() }
             )
-
         }
 
     }
-
 }
