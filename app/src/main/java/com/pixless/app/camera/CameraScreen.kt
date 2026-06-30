@@ -24,6 +24,11 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import android.graphics.Bitmap
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.asImageBitmap
+import com.pixless.app.camera.FocusReticle
+import androidx.compose.ui.geometry.Offset
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,13 +84,38 @@ fun CameraScreen(
                 Column(modifier = Modifier
                     .fillMaxSize()
                     .padding(vertical = 32.dp)) {
+
+                    var liveFilterBitmap by remember { mutableStateOf<Bitmap?>(null) }
+
                     Box(modifier = Modifier.weight(1f)) {
+
+                        val viewfinderModifier = Modifier
+                            .fillMaxWidth(0.85f)
+                            .aspectRatio(3f / 4f)
+                            .align(Alignment.Center)
+
                         CameraPreview(
                             controller = controller,
-                            modifier = Modifier
-                                .fillMaxWidth(0.8f)
-                                .padding(vertical = 16.dp)
+                            modifier = viewfinderModifier,
+                            onFrameProcessed = { processedBitmap ->
+                                liveFilterBitmap = processedBitmap
+                            }
                         )
+
+                        if (liveFilterBitmap != null) {
+                            val bitmap = liveFilterBitmap ?: return@Box
+                            Image(
+                                bitmap = bitmap.asImageBitmap(),
+                                contentDescription = "Live Filter",
+                                modifier = viewfinderModifier,
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+
+                        Box(modifier = viewfinderModifier) {
+                            CameraGrid()
+                        }
+
                         if (shutter) {
                             Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.45f)))
                         }
@@ -124,17 +154,14 @@ fun CameraScreen(
                                 .size(96.dp)
                                 .background(Color.White, CircleShape)
                                 .clickable {
-                                    controller.takePhoto(
+                                    controller.takeAndProcessPhoto(
                                         onSuccess = {
                                             lastPhotoUri = controller.getLastPhotoUri()
                                         },
-                                        onError = {}
+                                        onError = {},
+                                        scope = scope
                                     )
-                                    scope.launch {
-                                        shutter = true
-                                        delay(100)
-                                        shutter = false
-                                    }
+                                    scope.launch { shutter = true; delay(100); shutter = false }
                                 }
                         )
 
