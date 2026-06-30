@@ -43,6 +43,9 @@ fun CameraScreen(
     var shutter by remember { mutableStateOf(false) }
     var lastPhotoUri by remember { mutableStateOf<Uri?>(null) }
 
+    var focusPos by remember { mutableStateOf<Offset?>(null) }
+    var showReticle by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         lastPhotoUri = controller.getLastPhotoUri()
     }
@@ -99,6 +102,14 @@ fun CameraScreen(
                             modifier = viewfinderModifier,
                             onFrameProcessed = { processedBitmap ->
                                 liveFilterBitmap = processedBitmap
+                            },
+                            onTap = { offset ->
+                                focusPos = offset
+                                showReticle = true
+                                scope.launch {
+                                    delay(500)
+                                    showReticle = false
+                                }
                             }
                         )
 
@@ -110,6 +121,12 @@ fun CameraScreen(
                                 modifier = viewfinderModifier,
                                 contentScale = ContentScale.Crop
                             )
+                        }
+
+                        if (showReticle && focusPos != null) {
+                            Box(modifier = viewfinderModifier) {
+                                FocusReticle(focusPos!!)
+                            }
                         }
 
                         Box(modifier = viewfinderModifier) {

@@ -16,22 +16,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @SuppressLint("UnsafeOptInUsageError")
 @Composable
 fun CameraPreview(
     controller: CameraController,
     modifier: Modifier = Modifier,
-    onFrameProcessed: (Bitmap) -> Unit
+    onFrameProcessed: (Bitmap) -> Unit,
+    onTap: (Offset) -> Unit
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-
-    val scope = rememberCoroutineScope()
-    var focusPos by remember { mutableStateOf<Offset?>(null) }
-    var showReticle by remember { mutableStateOf(false) }
 
     val previewView = remember {
         PreviewView(context).apply {
@@ -53,12 +48,7 @@ fun CameraPreview(
                 factory = {
                     previewView.setOnTouchListener { view, event ->
                         if (event.action == MotionEvent.ACTION_UP) {
-                            focusPos = Offset(event.x, event.y)
-                            showReticle = true
-                            scope.launch {
-                                delay(500)
-                                showReticle = false
-                            }
+                            onTap(Offset(event.x, event.y))
                             controller.setFocus(previewView.meteringPointFactory, event.x, event.y)
                             view.performClick()
                         }
@@ -68,11 +58,6 @@ fun CameraPreview(
                 },
                 modifier = Modifier.matchParentSize()
             )
-
-            if (showReticle && focusPos != null) {
-                FocusReticle(offset = focusPos!!)
-            }
-
         }
     }
 }
